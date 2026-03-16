@@ -1,0 +1,10 @@
+Name: Carms
+Version: 0.1.0
+Icon: "carms/mod_icon"
+Title: Carms
+Desc: "2026 Tournament Week 2 Helper.\n"
+DLL: "Carms.dll"
+Dependencies:
+- Name: Quintessential
+  Version: 0.3.0
+#Mappings:
