@@ -30,6 +30,7 @@ namespace Carms
 		public static PartType MechanismArm3() => class_191.field_1766;
 		public static PartType MechanismArm6() => class_191.field_1767;
 		public static PartType MechanismPiston() => class_191.field_1768;
+		public static PartType IOOutputStandard() => class_191.field_1761;
 
 		public static bool PartIsArm(Part part) {
 			return  part.method_1159() == MechanismArm1() ||
@@ -38,6 +39,8 @@ namespace Carms
 					part.method_1159() == MechanismArm6() ||
 					part.method_1159() == MechanismPiston();
 		}
+
+		public static HexIndex getPartOrigin(Part part) => part.method_1161();
 
         private static void display_metric(string name, string value, Vector2 position, float offset = 0f)
 		{
@@ -73,14 +76,25 @@ namespace Carms
 
     		// program metrics
     		int arms = 0;
+			int DOut = 0;
     		if (validProgram)
     		{
     			CompiledProgramGrid compiledProgramGrid = maybeSim.method_1087().method_1820();
     			var programGridDict = new DynamicData(compiledProgramGrid).Get<Dictionary<Part, CompiledProgram>>("field_2368");
     			arms = 0;
+				List<HexIndex> outputIndexes = new List<HexIndex>{};
     			foreach (var ENTRY in programGridDict)
     			{
 					if(PartIsArm(ENTRY.Key)) arms++;
+					else if (ENTRY.Key.method_1159() == IOOutputStandard())
+					{
+						HexIndex thisIndex = getPartOrigin(ENTRY.Key);
+						foreach (var hexI in outputIndexes)
+						{
+							DOut = Math.Max(DOut,HexIndex.Distance(hexI,thisIndex));
+						}
+						outputIndexes.Add(thisIndex);
+					}
     			}
     		}
 
@@ -88,9 +102,10 @@ namespace Carms
 
 			// class_135.method_272(metric_overlay, metric_overlay_position);
 
-    		// METRIC 3:
     		xpos = -670f;
     		display_metric(class_134.method_253("Carms", string.Empty).method_1060() + ":", simRunning ? (cycles*arms).method_453() : "----", new Vector2(xpos, 0));
+			xpos = -820f;
+    		display_metric(class_134.method_253("MaxOD", string.Empty).method_1060() + ":", (DOut>0) ? (DOut).method_453() : "----", new Vector2(xpos, 0));
     	}
 
     	public static void LoadPuzzleContent()
